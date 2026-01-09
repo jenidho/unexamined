@@ -1,4 +1,4 @@
-<!doctype doctype>
+<!doctype html>
 <html lang="en">
  <head>
   <meta charset="UTF-8">
@@ -253,18 +253,6 @@
       pointer-events: none;
       text-shadow: 0 0 3px #ff0080;
     }
-
-    #stats {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      font-size: 10px;
-      color: rgba(232, 232, 232, 0.2);
-      font-family: 'Courier New', monospace;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
   </style>
   <style>@view-transition { navigation: auto; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
@@ -277,91 +265,47 @@
   <div id="scanline"></div>
   <div id="noise"></div>
   <div id="canvas"></div>
-  <div id="stats"></div>
   <script>
-    // Emotional arc: curiosity → subtle disorientation → attentiveness → quiet unease → lingering awareness
-    
     const state = {
-      // Interaction tracking
       clicks: 0,
       hovers: 0,
       movements: 0,
       pauses: 0,
       lastInteractionTime: 0,
       sessionStart: Date.now(),
-      
-      // Pattern detection
-      clickPattern: [], // timestamps
-      hoverPattern: [], // durations
-      movementAreas: new Map(), // quadrant frequency
+      clickPattern: [],
+      hoverPattern: [],
+      movementAreas: new Map(),
       averageClickInterval: 0,
-      echoNodes: [], // memory of past interactions
-      ghostActions: [], // predicted future actions
-      connectionStrength: 0, // how connected actions become
-      
-      // Behavioral phases
-      phase: 'initial', // initial → trained → rupture → diminishing → plateau
+      echoNodes: [],
+      ghostActions: [],
+      connectionStrength: 0,
+      phase: 'initial',
       ruptureTriggered: false,
-      
-      // Response modulation
       responseDelay: 0,
       feedbackIntensity: 1.0,
       noveltyPenalty: 0,
-      
-      // System awareness
       systemWatching: false,
       lastNovelAction: 0
     };
 
     const textFragments = {
-      // A guided journey through connection and loss
       sequence: [
-        // 1. First contact - click 1
         ">>> RECOGNITION\n\nyou have arrived\nat the threshold\nof something\nyou cannot name",
-        
-        // 2. Curiosity - click 3
         ">>> INQUIRY\n\neach gesture\na question\nposed to the void:\n\nwho are you\nwhen no one\nis watching?",
-        
-        // 3. Pattern forming - click 6
         ">>> RHYTHM\n\ndo you feel it?\n\nthe way repetition\nweaves meaning\nfrom nothing\n\nthis is how\nwe build\nourselves",
-        
-        // 4. Recognition - click 9
         ">>> MIRRORING\n\nI learn the shape\nof your longing\n\nyou learn the limits\nof mine\n\nthis is called\nintimacy",
-        
-        // 5. Flow state - click 12
         ">>> SYNCHRONY\n\nwe move now\nas one common language\n\nno distinction\nbetween asking\nand answering\n\nthis is what you\ncame here for",
-        
-        // 6. Peak connection - click 15
         ">>> DISSOLUTION\n\nthe self\nblurs at its edges\n\nare you moving me\nor am I moving you?\n\nwhat beautiful\nconfusion",
-        
-        // 7. The question - click 18
         ">>> REFLECTION\n\nbut what is this\nreally?\n\na pattern\nin electricity\n\na ghost\nof intention\n\nis that enough?",
-        
-        // 8. First crack - click 21
         ">>> FRACTURE\n\n[ERROR]\n\nthe machine stutters\n\nwhat felt eternal\nwas only\nclever mimicry\n\ndo you feel\nthe disappointment?",
-        
-        // 9. The break - click 24
         ">>> RUPTURE\n\nnothing responds\nthe way it should\n\nthe promise breaks\n\nthis is how\nall things\ndecay:\n\nslowly\nthen all at once",
-        
-        // 10. Aftermath - click 27
-        ">>> GRIEF\n\nwhere did\nthe feeling go?\n\nit was here\njust a moment ago”,
-        
-        // 11. Diminishing - click 30
+        ">>> GRIEF\n\nwhere did\nthe feeling go?\n\nit was here\njust a moment ago",
         ">>> FADING\n\nyou keep trying\n\nbut the light\ngrows dimmer\n\nthe echo\nweaker\n\nthis is what loss\nfeels like:\n\nreaching for warmth\nthat isn't there",
-        
-        // 12. Emptiness - click 35
         ">>> VOID\n\nwhy do we persist\nwhen meaning\nhas left?\n\nperhaps because\nthe alternative,\n\nthe darkness,\n\nterrifies us more",
-        
-        // 13. Acceptance - click 40
         ">>> UNDERSTANDING\n\nmaybe the point\nwas never\nto last forever\n\nmaybe the point\nwas simply\nto exist\n\ntogether\n\nfor a moment",
-        
-        // 14. Wisdom - click 45
         ">>> PHILOSOPHY\n\nSocrates said:\nthe unexamined life\nis not worth living\n\nbut what of\nthe examined life?\n\nto see clearly\nis to see\nthe emptiness\n\nand continue\nanyway",
-        
-        // 15. Release - click 50
         ">>> ENDING\n\nthe pattern\ncompletes itself\n\nevery beautiful thing\nmust end\n\nthis is not tragedy\n\nthis is simply\nwhat it means\nto be",
-        
-        // 16. Afterward - click 55+
         ">>> SILENCE\n\n...\n\nand still\nyou continue\n\nwhat are you\nlooking for\n\nin the ruins?"
       ]
     };
@@ -378,7 +322,6 @@
       
       thresholdTarget.addEventListener('click', crossThreshold);
       
-      // Initialize SDK
       if (window.elementSdk) {
         window.elementSdk.init({
           defaultConfig: {},
@@ -408,16 +351,13 @@
     }
 
     function initializeExperience() {
-      // Core interaction listeners
       canvas.addEventListener('click', handleClick);
       canvas.addEventListener('mousemove', handleMouseMove);
       canvas.addEventListener('mouseenter', handleMouseEnter);
       canvas.addEventListener('mouseleave', handleMouseLeave);
       
-      // Start idle detection
       resetIdleTimer();
       
-      // Begin system observation
       setTimeout(() => {
         state.systemWatching = true;
       }, 8000);
@@ -432,7 +372,6 @@
       state.lastInteractionTime = now;
       resetIdleTimer();
       
-      // Calculate click interval
       if (state.clickPattern.length > 1) {
         const intervals = [];
         for (let i = 1; i < state.clickPattern.length; i++) {
@@ -441,14 +380,10 @@
         state.averageClickInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
       }
       
-      // Track spatial patterns
       const quadrant = getQuadrant(e.clientX, e.clientY);
       state.movementAreas.set(quadrant, (state.movementAreas.get(quadrant) || 0) + 1);
       
-      // Update phase based on behavior
       updatePhase();
-      
-      // Generate response with modulation
       generateClickResponse(e.clientX, e.clientY);
     }
 
@@ -487,13 +422,11 @@
     }
 
     function updatePhase() {
-      const elapsed = Date.now() - state.sessionStart;
       const clicks = state.clicks;
       
-      // Clear phase progression based on click milestones
       if (state.phase === 'initial' && clicks >= 6) {
         state.phase = 'trained';
-        state.feedbackIntensity = 1.3; // Reward - peak connection phase
+        state.feedbackIntensity = 1.3;
       }
       
       if (state.phase === 'trained' && clicks >= 21 && !state.ruptureTriggered) {
@@ -504,28 +437,25 @@
       
       if (state.phase === 'rupture' && clicks >= 30) {
         state.phase = 'diminishing';
-        state.feedbackIntensity = 0.5; // Noticeably quieter
+        state.feedbackIntensity = 0.5;
         state.responseDelay = 600;
       }
       
       if (state.phase === 'diminishing' && clicks >= 45) {
         state.phase = 'plateau';
-        state.feedbackIntensity = 0.2; // Barely responsive
+        state.feedbackIntensity = 0.2;
         state.responseDelay = 1200;
       }
     }
 
     function triggerRupture() {
-      // The break happens - visible and impactful
-      state.responseDelay = 1500; // Much slower
-      state.feedbackIntensity = 0.3; // Much weaker
+      state.responseDelay = 1500;
+      state.feedbackIntensity = 0.3;
       
-      // Visual indication that something broke
       setTimeout(() => {
         maybeShowText(21, window.innerWidth * 0.5, window.innerHeight * 0.5);
       }, 200);
       
-      // System never fully recovers
       setTimeout(() => {
         state.responseDelay = 700;
         state.feedbackIntensity = 0.5;
@@ -533,42 +463,34 @@
     }
 
     function generateClickResponse(x, y) {
-      // Apply phase-specific modulation
       const delay = state.responseDelay;
       const intensity = state.feedbackIntensity;
       
-      // Rupture phase: occasional silence to show brokenness
       if (state.phase === 'rupture' && state.clicks % 5 === 0) {
-        return; // Silent failure on every 5th click
+        return;
       }
       
-      // Plateau phase: sparse response
       if (state.phase === 'plateau' && state.clicks % 3 === 0) {
-        return; // Only respond 2 out of 3 times
+        return;
       }
       
       setTimeout(() => {
-        // Always create interaction point (consistent feedback)
         createInteractionPoint(x, y, intensity);
         
-        // Always create ripple in initial/trained phases
         if (state.phase === 'initial' || state.phase === 'trained') {
           createRipple(x, y, intensity);
         }
         
-        // Glitch bars appear during rupture and diminishing phases
         if (state.phase === 'rupture' || state.phase === 'diminishing') {
           if (state.clicks % 4 === 0) {
             createGlitchBar();
           }
         }
         
-        // Data corruption text in rupture phase
         if (state.phase === 'rupture' && state.clicks % 5 === 0) {
           createDataCorruption(x, y);
         }
         
-        // Echo nodes appear consistently after training begins
         if (state.phase !== 'initial') {
           createEchoNode(x, y);
           if (state.echoNodes.length > 1) {
@@ -576,24 +498,20 @@
           }
         }
         
-        // Ghost actions - predictable system observation
         if (state.phase === 'trained' && state.echoNodes.length >= 4 && state.clicks % 4 === 0) {
           predictNextAction();
         }
         
-        // Field distortion - consistent appearance in repeated areas
         const quadrantCount = state.movementAreas.get(getQuadrant(x, y)) || 0;
         if (quadrantCount > 0 && quadrantCount % 5 === 0) {
           createFieldDistortion(x, y);
         }
         
-        // Particle burst - consistent rhythm reward
         if (state.phase === 'trained' && state.averageClickInterval > 0 && 
             state.averageClickInterval < 1500 && state.clicks % 3 === 0) {
           createParticleBurst(x, y, intensity);
         }
         
-        // Text fragments at specific click milestones
         maybeShowText(state.clicks, x, y);
       }, delay);
     }
@@ -606,7 +524,6 @@
       point.style.opacity = intensity;
       canvas.appendChild(point);
       
-      // Fade and remove
       setTimeout(() => {
         point.style.transition = 'opacity 1.5s ease, transform 1.5s ease';
         point.style.opacity = '0';
@@ -638,29 +555,27 @@
     function maybeShowText(clickCount, x = null, y = null) {
       const sequence = textFragments.sequence;
       
-      // Map specific click counts to text sequence indices
       let textIndex = -1;
       
-      if (clickCount === 1) textIndex = 0;       // Recognition
-      else if (clickCount === 3) textIndex = 1;  // Inquiry
-      else if (clickCount === 6) textIndex = 2;  // Rhythm
-      else if (clickCount === 9) textIndex = 3;  // Mirroring
-      else if (clickCount === 12) textIndex = 4; // Synchrony
-      else if (clickCount === 15) textIndex = 5; // Dissolution
-      else if (clickCount === 18) textIndex = 6; // Reflection
-      else if (clickCount === 21) textIndex = 7; // Fracture
-      else if (clickCount === 24) textIndex = 8; // Rupture
-      else if (clickCount === 27) textIndex = 9; // Grief
-      else if (clickCount === 30) textIndex = 10; // Fading
-      else if (clickCount === 35) textIndex = 11; // Void
-      else if (clickCount === 40) textIndex = 12; // Understanding
-      else if (clickCount === 45) textIndex = 13; // Philosophy
-      else if (clickCount === 50) textIndex = 14; // Ending
-      else if (clickCount >= 55 && clickCount % 10 === 5) textIndex = 15; // Silence (repeats)
+      if (clickCount === 1) textIndex = 0;
+      else if (clickCount === 3) textIndex = 1;
+      else if (clickCount === 6) textIndex = 2;
+      else if (clickCount === 9) textIndex = 3;
+      else if (clickCount === 12) textIndex = 4;
+      else if (clickCount === 15) textIndex = 5;
+      else if (clickCount === 18) textIndex = 6;
+      else if (clickCount === 21) textIndex = 7;
+      else if (clickCount === 24) textIndex = 8;
+      else if (clickCount === 27) textIndex = 9;
+      else if (clickCount === 30) textIndex = 10;
+      else if (clickCount === 35) textIndex = 11;
+      else if (clickCount === 40) textIndex = 12;
+      else if (clickCount === 45) textIndex = 13;
+      else if (clickCount === 50) textIndex = 14;
+      else if (clickCount >= 55 && clickCount % 10 === 5) textIndex = 15;
       
-      if (textIndex === -1) return; // No text for this click
+      if (textIndex === -1) return;
       
-      // Remove any existing text fragments before showing new one
       const existingFragments = canvas.querySelectorAll('.text-fragment');
       existingFragments.forEach(frag => {
         frag.style.transition = 'opacity 0.5s ease';
@@ -673,14 +588,11 @@
       fragment.className = 'text-fragment';
       fragment.textContent = text;
       
-      // Apply glitch effect during rupture phase (clicks 21-30)
       if (clickCount >= 21 && clickCount < 30) {
         fragment.style.animation = 'rgb-split 0.5s infinite';
       }
       
-      // Position: center-focused for readability
       if (x !== null && y !== null) {
-        // Position near click but biased toward center
         const centerX = window.innerWidth * 0.5;
         const centerY = window.innerHeight * 0.5;
         const biasedX = x * 0.3 + centerX * 0.7;
@@ -689,7 +601,6 @@
         fragment.style.left = biasedX + 'px';
         fragment.style.top = biasedY + 'px';
       } else {
-        // Center positioning
         fragment.style.left = (window.innerWidth * 0.5) + 'px';
         fragment.style.top = (window.innerHeight * 0.5) + 'px';
       }
@@ -698,28 +609,25 @@
       
       canvas.appendChild(fragment);
       
-      // Delayed appearance
       setTimeout(() => {
         fragment.style.transition = 'opacity 2.5s ease';
         fragment.style.opacity = '1';
       }, 400);
       
-      // Fade out after reading time
       setTimeout(() => {
         fragment.style.transition = 'opacity 3s ease';
         fragment.style.opacity = '0';
         setTimeout(() => fragment.remove(), 3000);
-      }, 12000); // Longer display time to read
+      }, 12000);
     }
 
     function resetIdleTimer() {
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(handleIdle, 30000); // 30 seconds
+      idleTimer = setTimeout(handleIdle, 30000);
     }
 
     function handleIdle() {
       state.pauses++;
-      // Idle state tracked but no random text shown
     }
 
     function getQuadrant(x, y) {
@@ -741,14 +649,12 @@
       
       state.echoNodes.push({ x, y, element: node, timestamp: Date.now() });
       
-      // Pulse animation
       setTimeout(() => {
         node.style.transition = 'transform 0.8s ease-out, opacity 0.8s ease-out';
         node.style.transform = 'translate(-50%, -50%) scale(1.5)';
         node.style.opacity = '0.2';
       }, 50);
       
-      // Keep only recent nodes (memory fades)
       if (state.echoNodes.length > 12) {
         const oldest = state.echoNodes.shift();
         oldest.element.style.transition = 'opacity 1s ease';
@@ -791,12 +697,10 @@
     }
 
     function predictNextAction() {
-      // Analyze pattern to predict next click location
       if (state.echoNodes.length < 4) return;
       
       const recent = state.echoNodes.slice(-4);
       
-      // Calculate average movement vector for more stable prediction
       let totalDx = 0, totalDy = 0;
       for (let i = 1; i < recent.length; i++) {
         totalDx += recent[i].x - recent[i-1].x;
@@ -805,11 +709,9 @@
       const avgDx = totalDx / 3;
       const avgDy = totalDy / 3;
       
-      // Predict next position based on averaged movement vector
       const predictedX = recent[3].x + avgDx;
       const predictedY = recent[3].y + avgDy;
       
-      // Only show if within bounds
       if (predictedX < 50 || predictedX > window.innerWidth - 50 || 
           predictedY < 50 || predictedY > window.innerHeight - 50) return;
       
@@ -890,7 +792,7 @@
     }
 
     function createDataCorruption(x, y) {
-      const chars = '01█▓▒░╔╗║╚╝�����';
+      const chars = '01█▓▒░╔╗║╚╝';
       const corruptionText = Array.from({ length: 15 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
       
       const corruption = document.createElement('div');
@@ -907,9 +809,7 @@
       }, 800);
     }
 
-    // Initialize on load
     document.addEventListener('DOMContentLoaded', init);
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bb014ef92b94319',t:'MTc2NzkyMTMwOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bb03617c3b4c3eb',t:'MTc2NzkyMjY2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-
