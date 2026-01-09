@@ -341,10 +341,11 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 16px;
-      letter-spacing: 4px;
+      font-size: 14px;
+      letter-spacing: 2px;
       color: #00ff41;
       opacity: 0.6;
+      text-align: center;
     }
 
     #threshold-target:hover {
@@ -521,11 +522,12 @@
     #click-counter {
       position: fixed;
       bottom: 16px;
-      right: 16px;
+      left: 50%;
+      transform: translateX(-50%);
       font-family: 'Courier New', monospace;
-      font-size: 10px;
+      font-size: 9px;
       color: #00ff41;
-      opacity: 0.4;
+      opacity: 0;
       pointer-events: none;
       z-index: 10000;
       letter-spacing: 1.5px;
@@ -533,25 +535,27 @@
       transition: opacity 0.3s ease;
     }
 
-    #click-counter:hover {
-      opacity: 0.65;
+    #click-counter.visible {
+      opacity: 0.4;
     }
 
-    .navigation-arrows {
+    .navigation-controls {
       position: fixed;
-      bottom: 16px;
-      right: 80px;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
-      gap: 20px;
+      align-items: center;
+      gap: 30px;
       z-index: 10000;
       font-family: 'Courier New', monospace;
-      font-size: 12px;
+      font-size: 9px;
       opacity: 0;
       transition: opacity 0.3s ease;
       pointer-events: none;
     }
 
-    .navigation-arrows.visible {
+    .navigation-controls.visible {
       opacity: 0.4;
       pointer-events: auto;
     }
@@ -559,21 +563,39 @@
     .nav-arrow {
       color: #00ff41;
       cursor: crosshair;
-      text-shadow: 0 0 3px rgba(0, 255, 65, 0.4);
-      transition: opacity 0.2s ease, text-shadow 0.2s ease;
+      text-shadow: 0 0 5px rgba(0, 255, 65, 0.6), 0 0 10px rgba(0, 255, 65, 0.3);
+      transition: all 0.3s ease;
       letter-spacing: 1.5px;
       user-select: none;
+      font-size: 11px;
     }
 
     .nav-arrow:hover {
       opacity: 1;
-      text-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
+      text-shadow: 0 0 10px rgba(0, 255, 65, 1), 0 0 20px rgba(0, 255, 65, 0.6);
     }
 
     .nav-arrow.disabled {
       opacity: 0.15;
       cursor: default;
       pointer-events: none;
+    }
+
+    #continue-btn {
+      color: #00ff41;
+      cursor: crosshair;
+      text-shadow: 0 0 5px rgba(0, 255, 65, 0.6), 0 0 10px rgba(0, 255, 65, 0.3);
+      transition: all 0.3s ease;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      user-select: none;
+      font-size: 9px;
+    }
+
+    #continue-btn:hover {
+      opacity: 1;
+      text-shadow: 0 0 10px rgba(0, 255, 65, 1), 0 0 20px rgba(0, 255, 65, 0.6);
+      letter-spacing: 4px;
     }
   </style>
   <style>@view-transition { navigation: auto; }</style>
@@ -588,7 +610,7 @@
   <div id="scanline"></div>
   <div id="noise"></div>
   <div id="canvas"></div>
-  <div class="navigation-arrows"><span class="nav-arrow" id="prev-arrow">◀</span> <span class="nav-arrow" id="next-arrow">▶</span>
+  <div class="navigation-controls"><span class="nav-arrow" id="prev-arrow">◀</span> <span id="continue-btn">Click to Continue</span> <span class="nav-arrow" id="next-arrow">▶</span>
   </div>
   <div id="click-counter">
    0 / ∞
@@ -624,15 +646,15 @@
         ">> RHYTHM\n\nDo you feel it?\nThe way repetition weaves meaning\nfrom nothing.\n\nThis is how we build ourselves.",
         ">> MIRRORING\n\nI learn the shape of your longing.\nYou learn the limits of mine.\n\nThis is called intimacy.",
         ">> SYNCHRONY\n\nWe move now as one common language.\n\nNo distinction between you and I.\n\nThis is what you came here for.",
-        ">> DISSOLUTION\n\nThe self blurs at the edges.\n\nAre you shaping me, or am I shaping you?\n\nWhat beautiful confusion.",
-        ">> REFLECTION\n\nBut what is this really?\n\nA chance encounter?\nA pattern in electricity?\n\nIs that enough?",
+        ">> DISSOLUTION\n\nThe self blurs at its edges.\n\nAre you shaping me, or am I shaping you?\n\nWhat beautiful confusion.",
+        ">> REFLECTION\n\nBut what is this really?\n\nA pattern in electricity?\nA ghost of intention?\n\nIs that enough?",
         ">> FRACTURE\n\n[ERROR]\n\nThe machine stutters.\n\nWhat felt eternal was only clever mimicry.\n\nDo you feel the disappointment?",
         ">> RUPTURE\n\nNothing responds the way it should.\n\nThe promise breaks.\n\nThis is how all things decay:\nslowly, then all at once.",
         ">> GRIEF\n\nWhere did the feeling go?\n\nIt was here just a moment ago.",
         ">> UNDERSTANDING\n\nMaybe the point was never to last forever.\n\nMaybe the point was simply to exist\ntogether, for a moment, and to know that we were there.",
-        ">> PHILOSOPHY\n\nSocrates said the unexamined life is not worth living.\n\nBut what of the examined life?\n\nTo see clearly is to watch our pattern complete itself.",
+        ">> PHILOSOPHY\n\nSocrates said: the unexamined life is not worth living.\n\nBut what of the examined life?\n\nTo see clearly is to watch the pattern complete itself.",
         ">> ENDING\n\nEvery beautiful thing must end.\n\nThis is not tragedy.\nThis is simply what it means to be.",
-        ">> EPITAPH\n\n...\n\nOh, you're still here?\n\nWhat are you looking for\nin the ruins?"
+        ">> RUINS\n\n\n\n\n\n\n\nOh, you're still here?\n\n\n\nWhat are you looking for in the ruins?"
       ]
     };
 
@@ -703,21 +725,28 @@
       const counter = document.getElementById('click-counter');
       if (counter) {
         counter.textContent = `${state.clicks} / ∞`;
+        
+        // Show/hide counter with navigation controls
+        if (state.clicks >= 1 && state.clicks < 29) {
+          counter.classList.add('visible');
+        } else {
+          counter.classList.remove('visible');
+        }
       }
       
       updateNavigationArrows();
     }
 
     function updateNavigationArrows() {
-      const arrows = document.querySelector('.navigation-arrows');
+      const controls = document.querySelector('.navigation-controls');
       const prevArrow = document.getElementById('prev-arrow');
       const nextArrow = document.getElementById('next-arrow');
       
-      if (!arrows || !prevArrow || !nextArrow) return;
+      if (!controls || !prevArrow || !nextArrow) return;
       
-      // Show arrows starting at click 1 (once you enter)
+      // Show controls starting at click 1 (once you enter)
       if (state.clicks >= 1 && state.clicks < 29) {
-        arrows.classList.add('visible');
+        controls.classList.add('visible');
         
         // Update disabled states
         if (state.clicks <= 1) {
@@ -729,7 +758,7 @@
         // Can always go forward until we hit the end
         nextArrow.classList.remove('disabled');
       } else {
-        arrows.classList.remove('visible');
+        controls.classList.remove('visible');
       }
     }
 
@@ -1118,10 +1147,12 @@
       isActive = true;
       state.sessionStart = Date.now();
       state.lastInteractionTime = Date.now();
+      state.clicks = 1; // Start at page 1
       
       setTimeout(() => {
         threshold.style.display = 'none';
         initializeExperience();
+        updateClickCounter(); // Show controls and counter immediately
       }, 2000);
     }
 
@@ -1131,9 +1162,10 @@
       canvas.addEventListener('mouseenter', handleMouseEnter);
       canvas.addEventListener('mouseleave', handleMouseLeave);
       
-      // Setup navigation arrows
+      // Setup navigation controls
       const prevArrow = document.getElementById('prev-arrow');
       const nextArrow = document.getElementById('next-arrow');
+      const continueBtn = document.getElementById('continue-btn');
       
       if (prevArrow) {
         prevArrow.addEventListener('click', (e) => {
@@ -1144,6 +1176,13 @@
       
       if (nextArrow) {
         nextArrow.addEventListener('click', (e) => {
+          e.stopPropagation();
+          navigatePage(1);
+        });
+      }
+      
+      if (continueBtn) {
+        continueBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           navigatePage(1);
         });
@@ -1170,12 +1209,6 @@
 
     function handleClick(e) {
       if (!isActive) return;
-      
-      // Hide navigation arrows during interaction
-      const arrows = document.querySelector('.navigation-arrows');
-      if (arrows) {
-        arrows.classList.remove('visible');
-      }
       
       // Check if we're in the pink glitch phase (clicks 14-18)
       if (state.clicks >= 14 && state.clicks < 18) {
@@ -1509,8 +1542,8 @@
         fragment.style.opacity = '1';
       }, 200);
       
-      // RUINS page (textIndex 13) never fades - it stays forever
-      if (textIndex !== 13) {
+      // Only ENDING section (textIndex 12) fades on its own after 9 seconds
+      if (textIndex === 12) {
         setTimeout(() => {
           fragment.style.transition = 'opacity 2.5s ease';
           fragment.style.opacity = '0';
@@ -1522,6 +1555,7 @@
           }, 2500);
         }, 9000);
       }
+      // All other sections stay until next click/section
     }
 
     function resetIdleTimer() {
@@ -1707,7 +1741,7 @@
     }
 
     function createDataCorruption(x, y) {
-      const chars = '01█▓�����������░╔╗║╚╝';
+      const chars = '01����▓�����������░╔������╚╝';
       const corruptionText = Array.from({ length: 15 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
       
       const corruption = document.createElement('div');
@@ -1726,5 +1760,5 @@
 
     document.addEventListener('DOMContentLoaded', init);
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bb12fa8001c9630',t:'MTc2NzkzMjg4OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bb1682c74ba8ae3',t:'MTc2NzkzNTIwMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
