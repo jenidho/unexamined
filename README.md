@@ -32,8 +32,7 @@ If you reference, study, or build upon this work, please credit it as follows:
 
 > **Unexamined**  
 > Jeni Dhodary, 2026  
-> GitHub: https://github.com/jenidho/unexamined
-> Website: https://unexamined.jenidho.com/
+> GitHub: https://github.com/jenidho/unexamined | Website: https://unexamined.jenidho.com/
 
 For academic or curatorial contexts, you may also cite the repository directly.
 
