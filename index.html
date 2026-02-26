@@ -29,6 +29,13 @@
       cursor: crosshair;
       user-select: none;
       image-rendering: pixelated;
+      --ambient-depth: rgba(6, 16, 11, 0.62);
+      --ambient-bloom: rgba(22, 58, 38, 0.18);
+      --ambient-cool: rgba(110, 255, 210, 0.04);
+      --ambient-warm: rgba(255, 218, 140, 0.00);
+      --light-x: 50%;
+      --light-y: 50%;
+      --light-opacity: 0.10;
     }
 
     @keyframes scan {
@@ -37,8 +44,8 @@
     }
 
     @keyframes flicker {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(0.82); }
     }
 
     @keyframes rgb-split {
@@ -240,6 +247,7 @@
       height: 100%;
       background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/></filter><rect width="200" height="200" filter="url(%23noise)" opacity="0.05"/></svg>');
       opacity: 0.4;
+      filter: brightness(1);
       pointer-events: none;
       z-index: 9998;
       animation: flicker 0.15s infinite;
@@ -254,6 +262,60 @@
       height: 100%;
       pointer-events: none;
       z-index: 1;
+      filter: saturate(1.06) contrast(1.05);
+    }
+
+    #background-layer::before,
+    #background-layer::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease, filter 0.8s ease;
+    }
+
+    #background-layer::before {
+      background:
+        radial-gradient(120% 90% at 18% 82%, var(--ambient-bloom) 0%, transparent 65%),
+        linear-gradient(180deg, var(--ambient-depth) 0%, rgba(0, 0, 0, 0.22) 55%, rgba(0, 0, 0, 0.08) 100%);
+      opacity: 0.9;
+    }
+
+    #background-layer::after {
+      background:
+        radial-gradient(75% 55% at 72% 36%, var(--ambient-warm) 0%, transparent 70%),
+        radial-gradient(65% 50% at 28% 30%, var(--ambient-cool) 0%, transparent 72%);
+      mix-blend-mode: screen;
+      opacity: 0.75;
+    }
+
+    #lightfield {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      transition: opacity 0.5s ease;
+    }
+
+    #lightfield::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(36% 28% at var(--light-x) var(--light-y),
+          rgba(180, 255, 225, calc(var(--light-opacity) * 0.65)) 0%,
+          rgba(150, 255, 210, calc(var(--light-opacity) * 0.25)) 28%,
+          transparent 72%);
+      mix-blend-mode: screen;
+      transition: opacity 0.4s ease;
+    }
+
+    #lightfield::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(130% 100% at 50% 50%, transparent 48%, rgba(0, 0, 0, 0.32) 100%);
+      opacity: 0.85;
     }
 
     .rain-drop {
@@ -403,20 +465,25 @@
 
     .text-fragment {
       position: absolute;
-      font-size: 18px;
-      line-height: 1.6;
+      font-size: clamp(16px, 1.6vw, 20px);
+      line-height: 1.7;
       letter-spacing: 2px;
       color: #00ff41;
       opacity: 0;
-      max-width: 580px;
+      max-width: min(700px, calc(100vw - 96px));
       pointer-events: auto;
       white-space: pre-wrap;
+      text-wrap: balance;
+      text-wrap: pretty;
       text-transform: uppercase;
-      font-weight: bold;
+      font-weight: 700;
       text-shadow: 0 0 8px #00ff41;
       animation: text-glitch 3s infinite;
       cursor: crosshair;
-      transition: color 0.1s ease, text-shadow 0.1s ease;
+      transition: color 0.1s ease, text-shadow 0.1s ease, opacity 1.2s ease, filter 0.8s ease;
+      padding: 18px 20px;
+      background: radial-gradient(circle at 20% 20%, rgba(0,255,65,0.05), rgba(0,0,0,0) 60%);
+      border-left: 1px solid rgba(0,255,65,0.18);
     }
 
     .text-fragment:hover {
@@ -607,6 +674,7 @@
    <div id="threshold-target"></div>
   </div>
   <div id="background-layer"></div>
+  <div id="lightfield"></div>
   <div id="scanline"></div>
   <div id="noise"></div>
   <div id="canvas"></div>
@@ -641,19 +709,19 @@
 
 const textFragments = {
   sequence: [
-    ">> RECOGNITION\n\nYou have arrived at the threshold\nof something you cannot name.",
+    ">> RECOGNITION\n\nYou have arrived at the threshold of something you cannot name.",
     ">> INQUIRY\n\nWho are you when no one is watching?",
-    ">> RHYTHM\n\nDo you feel it?\nThe way repetition weaves meaning\nfrom nothing.\n\nThis is how we build ourselves.",
-    ">> MIRRORING\n\nI learn the shape of your longing.\nYou learn the limits of mine.\n\nThis is called intimacy.",
+    ">> RHYTHM\n\nDo you feel it? The way repetition weaves meaning from nothing.\n\nThis is how we build ourselves.",
+    ">> MIRRORING\n\nI learn the shape of your longing. You learn the limits of mine.\n\nThis is called intimacy.",
     ">> SYNCHRONY\n\nWe move now as one common language.\n\nNo distinction between you and I.\n\nThis is what you came here for.",
     ">> DISSOLUTION\n\nThe self blurs at the edges.\n\nAre you shaping me, or am I shaping you?\n\nWhat beautiful confusion.",
-    ">> REFLECTION\n\nBut what is this really?\n\nA chance encounter?\nA pattern in electricity?",
-    ">> FRACTURE\n\n[ERROR]\n\nThe machine stutters.\n\nWhat felt eternal was only clever mimicry.\n\nDo you feel disappointed?",
-    ">> RUPTURE\n\nNothing responds the way it should.\n\nThe promise breaks.\n\nThis is how all things decay:\nslowly, then all at once.",
+    ">> REFLECTION\n\nBut what is this really?\n\nA chance encounter? A pattern in electricity?",
+    ">> FRACTURE\n\nThe machine transgresses.\n\nWhat felt eternal was only a clever pretense.\n\nDo you feel the disappointment?",
+    ">> RUPTURE\n\nNothing responds the way it should.\n\nThe promise breaks.\n\nThis is how all things decay: slowly, then all at once.",
     ">> GRIEF\n\nWhere did the feeling go?\n\nIt was here just a moment ago.",
     ">> UNDERSTANDING\n\nI wanted us to last forever.",
-    ">> PHILOSOPHY\n\nBut maybe the point was simply to exist\ntogether, for a moment, and to know that we were there.",
-    ">> ENDING\n\nEvery beautiful thing must end.\n\nThis is not tragedy.\nThis is simply what it means to be.",
+    ">> PHILOSOPHY\n\nBut maybe the point was simply to exist together, for a moment, and to know that we were there.",
+    ">> ENDING\n\nEvery beautiful thing must end.\n\nThis is not tragedy. This is simply what it means to be.",
     ">> RUINS\n\n...\n\nOh, you're still here?\n\nWhat are you looking for in the ruins?"
   ]
 };
@@ -671,6 +739,7 @@ const textFragments = {
       
       thresholdTarget.addEventListener('click', crossThreshold);
       initializeBackgroundPatterns();
+      updateLightfield(window.innerWidth * 0.5, window.innerHeight * 0.5);
       
       if (window.elementSdk) {
         window.elementSdk.init({
@@ -707,18 +776,19 @@ const textFragments = {
       let noiseOpacity = 0.4;
       
       if (clicks >= 1 && clicks < 8) {
-        noiseOpacity = 0.4;
+        noiseOpacity = 0.38;
       } else if (clicks >= 8 && clicks < 14) {
-        noiseOpacity = 0.5;
+        noiseOpacity = 0.30;
       } else if (clicks >= 14 && clicks < 20) {
-        noiseOpacity = 0.65;
+        noiseOpacity = 0.25;
       } else if (clicks >= 20 && clicks < 29) {
-        noiseOpacity = 0.8;
+        noiseOpacity = 0.20;
       } else if (clicks >= 29) {
-        noiseOpacity = 0.95;
+        noiseOpacity = 0.17;
       }
       
       noise.style.opacity = noiseOpacity;
+      updateAmbientPalette(clicks);
     }
 
     function updateClickCounter() {
@@ -1135,7 +1205,10 @@ const textFragments = {
       canvas.appendChild(layer);
       
       setTimeout(() => {
-        layer.style.opacity = '0.6';
+        const revealProgress = Math.min(Math.max((state.clicks - 1) / 28, 0), 1);
+        const layerOpacity = 0.62 + (revealProgress * 0.18);
+        layer.style.filter = `saturate(${(1 + revealProgress * 0.55).toFixed(2)}) brightness(${(1 + revealProgress * 0.25).toFixed(2)})`;
+        layer.style.opacity = layerOpacity.toFixed(2);
       }, 100);
       
       return layer;
@@ -1148,12 +1221,36 @@ const textFragments = {
       state.sessionStart = Date.now();
       state.lastInteractionTime = Date.now();
       state.clicks = 1; // Start at page 1
+      updateAmbientPalette(state.clicks);
       
       setTimeout(() => {
         threshold.style.display = 'none';
         initializeExperience();
+        maybeShowText(state.clicks, window.innerWidth * 0.5, window.innerHeight * 0.5);
         updateClickCounter(); // Show controls and counter immediately
       }, 2000);
+    }
+
+    function updateAmbientPalette(clicks) {
+      const progress = Math.min(Math.max((clicks - 1) / 28, 0), 1);
+      const depthAlpha = 0.62 - (progress * 0.28);
+      const bloomAlpha = 0.18 + (progress * 0.14);
+      const coolAlpha = 0.04 + (progress * 0.10);
+      const warmAlpha = progress * 0.18;
+      const lightOpacity = 0.10 + (progress * 0.12);
+
+      document.body.style.setProperty('--ambient-depth', `rgba(6, 16, 11, ${depthAlpha.toFixed(2)})`);
+      document.body.style.setProperty('--ambient-bloom', `rgba(22, 58, 38, ${bloomAlpha.toFixed(2)})`);
+      document.body.style.setProperty('--ambient-cool', `rgba(110, 255, 210, ${coolAlpha.toFixed(2)})`);
+      document.body.style.setProperty('--ambient-warm', `rgba(255, 218, 140, ${warmAlpha.toFixed(2)})`);
+      document.body.style.setProperty('--light-opacity', lightOpacity.toFixed(2));
+    }
+
+    function updateLightfield(x, y) {
+      const xPct = (x / window.innerWidth) * 100;
+      const yPct = (y / window.innerHeight) * 100;
+      document.body.style.setProperty('--light-x', `${xPct.toFixed(2)}%`);
+      document.body.style.setProperty('--light-y', `${yPct.toFixed(2)}%`);
     }
 
     function initializeExperience() {
@@ -1243,6 +1340,7 @@ const textFragments = {
       updatePhase();
       updateBackgroundIntensity();
       updateClickCounter();
+      updateLightfield(e.clientX, e.clientY);
       generateClickResponse(e.clientX, e.clientY);
     }
 
@@ -1261,6 +1359,8 @@ const textFragments = {
         state.lastInteractionTime = Date.now();
         resetIdleTimer();
       }
+
+      updateLightfield(e.clientX, e.clientY);
     }
 
     function handleMouseEnter(e) {
@@ -1480,14 +1580,10 @@ const textFragments = {
       
       let text = sequence[textIndex];
       
-      // Add opening ellipsis to RUINS on separate line before "Oh"
-      if (textIndex === 14) {
-        text = text.replace('Oh, you\'re still here?', '...\n\nOh, you\'re still here?');
-      }
-      
       const fragment = document.createElement('div');
       fragment.className = 'text-fragment';
-      fragment.innerHTML = text;
+      fragment.textContent = formatDisplayText(text);
+      const placement = getArtfulPlacement(textIndex);
       
       // FRACTURE and RUPTURE phases (clicks 14-17) - glitchy pink chaos
       if (clickCount >= 14 && clickCount <= 17) {
@@ -1529,13 +1625,14 @@ const textFragments = {
         fragment.style.animation = 'text-glitch 3s infinite';
       }
       
-      // Always center text regardless of click position
-      fragment.style.left = (window.innerWidth * 0.5) + 'px';
-      fragment.style.top = (window.innerHeight * 0.5) + 'px';
-      
+      // Artful side-to-side composition with safe margins
+      fragment.style.left = placement.x + 'px';
+      fragment.style.top = placement.y + 'px';
+      fragment.style.textAlign = placement.align;
       fragment.style.transform = 'translate(-50%, -50%)';
       
       canvas.appendChild(fragment);
+      adjustFragmentLayout(fragment, placement);
       
       setTimeout(() => {
         fragment.style.transition = 'opacity 1.8s ease';
@@ -1556,6 +1653,60 @@ const textFragments = {
         }, 9000);
       }
       // All other sections stay until next click/section
+    }
+
+    function getArtfulPlacement(index) {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const pad = window.innerWidth <= 820 ? 24 : 56;
+      const x = w * 0.5;
+      const y = h * 0.47;
+
+      const clampedX = Math.max(pad, Math.min(w - pad, x));
+      const clampedY = Math.max(pad, Math.min(h - pad, y));
+      const align = 'left';
+
+      return { x: clampedX, y: clampedY, align };
+    }
+
+    function adjustFragmentLayout(fragment, placement) {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const pad = window.innerWidth <= 820 ? 16 : 28;
+
+      const sideRoom = Math.min(placement.x - pad, w - pad - placement.x);
+      const dynamicMaxWidth = Math.max(
+        window.innerWidth <= 820 ? 300 : 420,
+        Math.min(window.innerWidth <= 820 ? 560 : 700, (sideRoom * 2) - 24)
+      );
+      fragment.style.maxWidth = `${dynamicMaxWidth}px`;
+
+      const rect = fragment.getBoundingClientRect();
+      let adjustedLeft = placement.x;
+      let adjustedTop = placement.y;
+
+      if (rect.left < pad) adjustedLeft += (pad - rect.left);
+      if (rect.right > w - pad) adjustedLeft -= (rect.right - (w - pad));
+      if (rect.top < pad) adjustedTop += (pad - rect.top);
+      if (rect.bottom > h - pad) adjustedTop -= (rect.bottom - (h - pad));
+
+      fragment.style.left = `${adjustedLeft}px`;
+      fragment.style.top = `${adjustedTop}px`;
+    }
+
+    function formatDisplayText(text) {
+      return text
+        .split('\n')
+        .map(preventOrphanWord)
+        .join('\n');
+    }
+
+    function preventOrphanWord(line) {
+      if (!line || !line.trim()) return line;
+      const parts = line.trim().split(/\s+/);
+      if (parts.length < 3) return line;
+      const last = parts.pop();
+      return `${parts.join(' ')}\u00A0${last}`;
     }
 
     function resetIdleTimer() {
@@ -1741,7 +1892,7 @@ const textFragments = {
     }
 
     function createDataCorruption(x, y) {
-      const chars = '01����▓�����������░╔������╚╝';
+      const chars = '01[]{}<>/\\\\|+=-*_^~#:;.';
       const corruptionText = Array.from({ length: 15 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
       
       const corruption = document.createElement('div');
