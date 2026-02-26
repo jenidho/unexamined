@@ -704,7 +704,8 @@
       feedbackIntensity: 1.0,
       noveltyPenalty: 0,
       systemWatching: false,
-      lastNovelAction: 0
+      lastNovelAction: 0,
+      ruinsShown: false
     };
 
 const textFragments = {
@@ -1424,6 +1425,9 @@ const textFragments = {
     function generateClickResponse(x, y) {
       const delay = state.responseDelay;
       const intensity = state.feedbackIntensity;
+
+      // Always evaluate text progression, even when visual effects are throttled.
+      maybeShowText(state.clicks, x, y);
       
       if (state.phase === 'rupture' && state.clicks % 5 === 0) {
         return;
@@ -1482,7 +1486,6 @@ const textFragments = {
           createParticleBurst(x, y, intensity);
         }
         
-        maybeShowText(state.clicks, x, y);
       }, delay);
     }
 
@@ -1564,9 +1567,10 @@ const textFragments = {
       else if (clickCount === 20) textIndex = 10;
       else if (clickCount === 23) textIndex = 11;
       else if (clickCount === 26) textIndex = 12;
-      else if (clickCount === 35) textIndex = 13;
+      else if (clickCount === 32) textIndex = 13;
       
       if (textIndex === -1) return;
+      if (textIndex === 13 && state.ruinsShown) return;
       
       const existingFragments = canvas.querySelectorAll('.text-fragment');
       existingFragments.forEach(frag => {
@@ -1584,6 +1588,7 @@ const textFragments = {
       fragment.className = 'text-fragment';
       fragment.textContent = formatDisplayText(text);
       const placement = getArtfulPlacement(textIndex);
+      if (textIndex === 13) state.ruinsShown = true;
       
       // FRACTURE and RUPTURE phases (clicks 14-17) - glitchy pink chaos
       if (clickCount >= 14 && clickCount <= 17) {
